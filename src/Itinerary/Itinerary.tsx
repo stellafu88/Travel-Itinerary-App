@@ -34,7 +34,7 @@ export class Itinerary { // eslint-disable-line no-unused-vars
         }
 
         // FEATURE 13. Provide default values
-
+        // default(currentActivityId) id is 1
         let aNewActivity: Activity
         if (id) {
             aNewActivity = new Activity(id, newTitle, newDestination, newDate)
@@ -43,6 +43,7 @@ export class Itinerary { // eslint-disable-line no-unused-vars
             this.currentActivityId++;
         }
         this.allMyActivities.push(aNewActivity)
+        this.save()
         return aNewActivity; // ?
     }
 
@@ -89,9 +90,10 @@ export class Itinerary { // eslint-disable-line no-unused-vars
 
         const activityBetweenSelectedDateTime: Activity[] = this.allMyActivities.filter((activity: Activity): boolean => {
             const activityDateInMs = activity.date.getTime()
-            const fromTimeInMs: number = from.getTime();
-            const toTimeInMs: number = to.getTime();
+            const fromTimeInMs: number = from?.getTime();
+            const toTimeInMs: number = to?.getTime();
             if (from && to) {
+                console.log(from,to)
                 return activityDateInMs >= fromTimeInMs && activityDateInMs <= toTimeInMs
             }
             if (from && activityDateInMs >= fromTimeInMs) {
@@ -143,6 +145,7 @@ export class Itinerary { // eslint-disable-line no-unused-vars
     // FEATURE 4. Filter parts
 
     getDueActivities(): Activity[] {
+        console.log(this.allMyActivities.filter(activity => activity.isDue()))
         return this.allMyActivities.filter(activity => activity.isDue())
     }
 
@@ -233,13 +236,16 @@ export class Itinerary { // eslint-disable-line no-unused-vars
 
     setCompleted(activityId: number): void {
         this.findActivityById(activityId)?.setCompleted();
+        this.save();
     }
 
     // FEATURE 5. Delete a selected part
 
     removeActivity(targetActivityId: number): Activity[] {
         const index = this.allMyActivities.findIndex((activity: Activity) => activity.id === targetActivityId)
-        return this.allMyActivities.splice(index, 1)
+        const removedActivities = this.allMyActivities.splice(index, 1)
+        this.save();
+        return removedActivities
     }
 
     // FEATURE 5. Delete a selected part
